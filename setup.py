@@ -1,25 +1,33 @@
 from setuptools import setup, find_packages
 
-version = "0.0.1"
-
-with open("OSS_VERSION", "rt") as f:
-    mf_version = f.read()
+version = "1.0.0"
 
 setup(
-    name="mycompany-metaflow",
+    name="metaflow-dbt-extension",
     version=version,
-    description="Metaflow Custom Extensions",
-    author="Your team name",
-    author_email="team@company.com",
-    packages=find_packages(),
+    description="DBT extension for Metaflow",
+    long_description=open("README.md").read(),
+    author="Sakari Ikonen",
+    long_description_content_type="text/markdown",
+    license="Apache Software License",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+    ],
+    packages=find_packages(include=["metaflow_extensions.*"]),
     py_modules=[
         "metaflow_extensions",
     ],
+    python_requires=">=3.8",
     install_requires=[
-        # CONFIGURE: You can list any additional requirements for your
-        # extensions here
-        # Preferred: Pin a version of metaflow here.
-        "metaflow=%s"
-        % mf_version
+        "metaflow=>2.8.3",
+        "dbt-core"
     ],
 )
