@@ -1,4 +1,4 @@
-__mf_extensions__ = "dbtext"
+__mf_extensions__ = "dbt-ext"
 
 import pkg_resources
 
