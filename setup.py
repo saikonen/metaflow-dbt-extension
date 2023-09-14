@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 version = "1.0.0"
 
@@ -21,7 +21,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],
-    packages=find_packages(include=["metaflow_extensions.*"]),
+    packages=find_namespace_packages(include=["metaflow_extensions.*"]),
     py_modules=[
         "metaflow_extensions",
     ],
