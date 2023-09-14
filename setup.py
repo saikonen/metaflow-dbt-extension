@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 version = "1.0.0"
 
 setup(
-    name="metaflow-dbtext",
+    name="metaflow-dbt-extension",
     version=version,
     description="DBT extension for Metaflow",
     long_description=open("README.md").read(),

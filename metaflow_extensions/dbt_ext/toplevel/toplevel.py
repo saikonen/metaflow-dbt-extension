@@ -3,7 +3,7 @@ __mf_extensions__ = "dbt-ext"
 import pkg_resources
 
 try:
-    __version__ = pkg_resources.get_distribution("metaflow-dbtext").version
+    __version__ = pkg_resources.get_distribution("metaflow-dbt-extension").version
 except:
     # this happens on remote environments since the job package
     # does not have a version
