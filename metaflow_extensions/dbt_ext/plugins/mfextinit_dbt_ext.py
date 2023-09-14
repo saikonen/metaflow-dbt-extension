@@ -13,13 +13,14 @@ CLIS_DESC = []
 # CONFIGURE: Flow level decorators; implements FlowDecorator (from decorators.py)
 ###
 # `name` field must match first element of tuple
-FLOW_DECORATORS_DESC = [("myflowdecorator", ".my_decorators.FlowDecorator")]
+# FLOW_DECORATORS_DESC = [("myflowdecorator", ".my_decorators.FlowDecorator")]
+FLOW_DECORATORS_DESC = []
 
 ###
 # CONFIGURE: Step level decorators; implements StepDecorator (from decorators.py)
 ###
 # `name` field must match first element of tuple
-STEP_DECORATORS_DESC = []
+STEP_DECORATORS_DESC = [("dbt", ".dbt.dbt_decorator.DbtStepDeco")]
 
 ###
 # CONFIGURE: Environments; implements MetaflowEnvironment
@@ -61,16 +62,14 @@ AWS_CLIENT_PROVIDERS_DESC = []
 # Toggle decorators
 ###
 # EXAMPLE: This example disables the kubernetes step decorator
-TOGGLE_STEP_DECORATOR = [
-    "-kubernetes"
-]
+TOGGLE_STEP_DECORATOR = []
 
 ###
 # Force a certain set of decorators
 ###
 # EXAMPLE: This example sets a given set of decorators and will ignore all toggles and
 # user settings
-ENABLED_STEP_DECORATOR = ["batch", "airflow_internal"]
+ENABLED_STEP_DECORATOR = []
 
 ###
 # CONFIGURE: Similar to datatools, you can make visible under metaflow.plugins.* other

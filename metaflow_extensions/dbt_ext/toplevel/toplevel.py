@@ -2,7 +2,7 @@
 # CONFIGURE: Name of this extension; will be shown as part of MF's version number as
 #            <mf version>+EXTENSION(<extension version>)
 ###
-__mf_extensions__ = "mycompany"
+__mf_extensions__ = "dbt-ext"
 
 ###
 # CONFIGURE: Import any subpackages you want to expose directly under metaflow.*.
@@ -10,7 +10,7 @@ __mf_extensions__ = "mycompany"
 ###
 
 # EXAMPLE: Will be accessible as metaflow.my_value
-from ..datatools import my_value
+# from ..datatools import my_value
 
 
 ###
