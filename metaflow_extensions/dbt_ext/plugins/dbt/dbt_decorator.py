@@ -4,6 +4,19 @@ from metaflow.exception import MetaflowException
 from .dbt_executor import DBTExecutor
 
 class DbtStepDecorator(StepDecorator):
+    """
+    Decorator to execute DBT models before a step execution begins.
+
+
+    Parameters
+    ----------
+    project_dir: str, optional
+        Path to the DBT project that contains a 'dbt_project.yml'.
+        If not specified, the current folder and parent folders will be tried.
+    model: str, optional
+        Name of model(s) to run. More than one model can be supplied separated by spaces.
+        All models will be run by default if no model name is provided.
+    """
     name = "dbt"
 
     defaults = {
@@ -39,7 +52,8 @@ class DbtStepDecorator(StepDecorator):
         # print(f"project_dir is: {self.attributes['project_dir']}")
         # print(f"model is: {self.attributes['model']}")
 
-        executor = DBTExecutor(project_dir=self.attributes["project_dir"])
+        executor = DBTExecutor(model=self.attributes["model"]
+                               , project_dir=self.attributes["project_dir"])
 
         out = executor.execute()
         print(out)
