@@ -1,12 +1,13 @@
 from metaflow.decorators import StepDecorator
-
 from metaflow.exception import MetaflowException
+
+from .dbt_executor import DBTExecutor
 
 class DbtStepDecorator(StepDecorator):
     name = "dbt"
 
     defaults = {
-        "config": None,
+        "project_dir": None,
         "model": None
     }
 
@@ -17,9 +18,6 @@ class DbtStepDecorator(StepDecorator):
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
     ):
-        if self.attributes["config"] is None:
-            raise MetaflowException("You must specify a configuration file for the target of the DBT commands")
-
         if self.attributes["model"] is None:
             raise MetaflowException("You must specify a model to run with DBT run")
 
@@ -37,6 +35,11 @@ class DbtStepDecorator(StepDecorator):
         ubf_context,
         inputs,
     ):
-        print("running before the task code")
-        print(f"config is: {self.attributes['config']}")
-        print(f"model is: {self.attributes['model']}")
+        # print("running before the task code")
+        # print(f"project_dir is: {self.attributes['project_dir']}")
+        # print(f"model is: {self.attributes['model']}")
+
+        executor = DBTExecutor(project_dir=self.attributes["project_dir"])
+
+        out = executor.execute()
+        print(out)
