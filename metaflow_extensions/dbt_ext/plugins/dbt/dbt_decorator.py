@@ -52,8 +52,10 @@ class DbtStepDecorator(StepDecorator):
         # print(f"project_dir is: {self.attributes['project_dir']}")
         # print(f"model is: {self.attributes['model']}")
 
-        executor = DBTExecutor(model=self.attributes["model"]
-                               , project_dir=self.attributes["project_dir"])
+        executor = DBTExecutor(
+            model=self.attributes["model"],
+            project_dir=self.attributes["project_dir"]
+        )
 
-        out = executor.execute()
+        out = executor.run()
         print(out)

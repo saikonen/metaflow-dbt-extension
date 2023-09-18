@@ -14,15 +14,18 @@ class DBTExecutor():
         if self.bin is None:
             raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
 
-    def execute(self):
+    def run(self):
         args = ["--fail-fast"]
         if self.project_dir is not None:
             args.extend(["--project-dir",self.project_dir])
         if self.model is not None:
             args.extend(["--model", self.model])
+        
+        return self._call("run", args)
 
+    def _call(self, cmd, args):
         try:
-            return subprocess.check_output([self.bin, "run"] + args, stderr=subprocess.PIPE).decode()
+            return subprocess.check_output([self.bin, cmd] + args, stderr=subprocess.PIPE).decode()
         except subprocess.CalledProcessError as e:
             raise DBTExecutionFailed(msg=e.stderr.decode())
         
