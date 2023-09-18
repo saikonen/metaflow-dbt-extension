@@ -1,6 +1,7 @@
 import subprocess
 
 from metaflow.exception import MetaflowException
+from metaflow.util import which
 
 class DBTExecutionFailed(MetaflowException):
     headline = "DBT Run execution failed"
@@ -9,7 +10,9 @@ class DBTExecutor():
     def __init__(self, model: None, project_dir: None):
         self.model = model
         self.project_dir = project_dir
-        self.bin = "dbt"
+        self.bin = which("./dbt") or which("dbt")
+        if self.bin is None:
+            raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
 
     def execute(self):
         args = ["--fail-fast"]
