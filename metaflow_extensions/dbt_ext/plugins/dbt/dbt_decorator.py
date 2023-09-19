@@ -31,8 +31,7 @@ class DbtStepDecorator(StepDecorator):
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
     ):
-        if self.attributes["model"] is None:
-            raise MetaflowException("You must specify a model to run with DBT run")
+        pass
 
     def task_pre_step(
         self,
