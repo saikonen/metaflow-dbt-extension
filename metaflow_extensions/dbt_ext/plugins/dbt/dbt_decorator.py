@@ -5,6 +5,7 @@ from metaflow.exception import MetaflowException
 
 from .dbt_executor import DBTExecutor
 
+
 class DbtStepDecorator(StepDecorator):
     """
     Decorator to execute DBT models before a step execution begins.
@@ -22,17 +23,17 @@ class DbtStepDecorator(StepDecorator):
         Chooses which target to load from the profiles.yml file.
         If not specified, it will use the default target from the profiles.
     """
+
     name = "dbt"
 
     defaults = {
         "project_dir": None,
         "model": None,
-        "target": None, 
+        "target": None,
     }
 
     def __init__(self, attributes=None, statically_defined=False):
         super(DbtStepDecorator, self).__init__(attributes, statically_defined)
-
 
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
@@ -56,7 +57,7 @@ class DbtStepDecorator(StepDecorator):
         executor = DBTExecutor(
             model=self.attributes["model"],
             project_dir=self.attributes["project_dir"],
-            target=self.attributes["target"]
+            target=self.attributes["target"],
         )
 
         out = executor.run()
@@ -98,10 +99,10 @@ class DbtStepDecorator(StepDecorator):
         executor = DBTExecutor(
             model=self.attributes["model"],
             project_dir=self.attributes["project_dir"],
-            target=self.attributes["target"]
+            target=self.attributes["target"],
         )
         paths = executor.project_file_paths()
-        
+
         # TODO: verify keys for possible collisions.
         files = [(path, path) for path in paths]
         return files
