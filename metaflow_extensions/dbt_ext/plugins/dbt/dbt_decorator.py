@@ -60,11 +60,23 @@ class DbtStepDecorator(StepDecorator):
         out = executor.run()
         print(out)
 
-        # Write run_results metadata as a task artifact.
+        # Write DBT run artifacts as task artifacts.
         # TODO: If required, look into making this available *during* the task execution as well,
-        # by somehow making self.run_results be persisted before the task initializes.
+        # by somehow making f.ex. self.run_results be persisted before the task initializes.
         # As it is now, the run_results will only be available through self in subsequent steps,
         # but not the one with the decorator.
-        run_results = executor.run_results()
-        if run_results is not None:
-            task_datastore.save_artifacts([("run_results", run_results)])
+        def _dbt_artifacts_iterable():
+            artifacts = {
+                "run_results": executor.run_results,
+                "semantic_manifest": executor.semantic_manifest,
+                "manifest": executor.manifest,
+                "sources": executor.sources,
+                "catalog": executor.catalog,
+            }
+            for name, func in artifacts.items():
+                val = func()
+                if val is None:
+                    continue
+                yield (name, val)
+
+        task_datastore.save_artifacts(_dbt_artifacts_iterable())

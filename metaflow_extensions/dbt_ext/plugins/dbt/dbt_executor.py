@@ -22,12 +22,19 @@ class DBTExecutor():
             raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
 
     def run_results(self) -> Optional[Dict]:
-        results = os.path.join(".", self.project_dir or "", "target", "run_results.json")
-        try:
-            with open(results) as m:
-                return json.load(m)
-        except FileNotFoundError:
-            return None
+        return self._read_dbt_artifact("run_results.json")
+    
+    def semantic_manifest(self) -> Optional[Dict]:
+        return self._read_dbt_artifact("semantic_manifest.json")
+
+    def manifest(self) -> Optional[Dict]:
+        return self._read_dbt_artifact("manifest.json")
+
+    def catalog(self) -> Optional[Dict]:
+        return self._read_dbt_artifact("catalog.json")
+
+    def sources(self) -> Optional[Dict]:
+        return self._read_dbt_artifact("sources.json")
 
     def run(self) -> str:
         args = ["--fail-fast"]
@@ -39,6 +46,14 @@ class DBTExecutor():
             args.extend(["--target", self.target])
         
         return self._call("run", args)
+
+    def _read_dbt_artifact(self, name: str):
+        artifact = os.path.join(".", self.project_dir or "", "target", name)
+        try:
+            with open(artifact) as m:
+                return json.load(m)
+        except FileNotFoundError:
+            return None
 
     def _call(self, cmd, args):
         try:
