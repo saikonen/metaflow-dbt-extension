@@ -28,6 +28,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "metaflow>=2.8.3",
-        "dbt-core"
+        "dbt-core",
+        "pyyaml"
     ],
 )

@@ -1,3 +1,5 @@
+import glob
+import os
 from metaflow.decorators import StepDecorator
 from metaflow.exception import MetaflowException
 
@@ -80,3 +82,26 @@ class DbtStepDecorator(StepDecorator):
                 yield (name, val)
 
         task_datastore.save_artifacts(_dbt_artifacts_iterable())
+
+    def add_to_package(self):
+        """
+        Called to add custom packages needed for a decorator. This hook will be
+        called in the `MetaflowPackage` class where metaflow compiles the code package
+        tarball. This hook is invoked in the `MetaflowPackage`'s `path_tuples`
+        function. The `path_tuples` function is a generator that yields a tuple of
+        `(file_path, arcname)`.`file_path` is the path of the file in the local file system;
+        the `arcname` is the path of the file in the constructed tarball or the path of the file
+        after decompressing the tarball.
+
+        Returns a list of tuples where each tuple represents (file_path, arcname)
+        """
+        executor = DBTExecutor(
+            model=self.attributes["model"],
+            project_dir=self.attributes["project_dir"],
+            target=self.attributes["target"]
+        )
+        paths = executor.project_file_paths()
+        
+        # TODO: verify keys for possible collisions.
+        files = [(path, path) for path in paths]
+        return files
