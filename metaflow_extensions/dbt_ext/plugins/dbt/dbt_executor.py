@@ -1,4 +1,6 @@
 import subprocess
+import os
+import json
 from typing import Dict, Optional
 
 from metaflow.exception import MetaflowException
@@ -18,6 +20,14 @@ class DBTExecutor():
         self.bin = which("./dbt") or which("dbt")
         if self.bin is None:
             raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
+
+    def run_results(self) -> Optional[Dict]:
+        results = os.path.join(".", self.project_dir or "", "target", "run_results.json")
+        try:
+            with open(results) as m:
+                return json.load(m)
+        except FileNotFoundError:
+            return None
 
     def run(self) -> str:
         args = ["--fail-fast"]

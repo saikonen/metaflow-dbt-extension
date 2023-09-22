@@ -51,10 +51,6 @@ class DbtStepDecorator(StepDecorator):
         ubf_context,
         inputs,
     ):
-        # print("running before the task code")
-        # print(f"project_dir is: {self.attributes['project_dir']}")
-        # print(f"model is: {self.attributes['model']}")
-
         executor = DBTExecutor(
             model=self.attributes["model"],
             project_dir=self.attributes["project_dir"],
@@ -63,3 +59,12 @@ class DbtStepDecorator(StepDecorator):
 
         out = executor.run()
         print(out)
+
+        # Write run_results metadata as a task artifact.
+        # TODO: If required, look into making this available *during* the task execution as well,
+        # by somehow making self.run_results be persisted before the task initializes.
+        # As it is now, the run_results will only be available through self in subsequent steps,
+        # but not the one with the decorator.
+        run_results = executor.run_results()
+        if run_results is not None:
+            task_datastore.save_artifacts([("run_results", run_results)])
