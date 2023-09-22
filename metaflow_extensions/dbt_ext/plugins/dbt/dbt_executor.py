@@ -11,9 +11,10 @@ class DBTExecutionFailed(MetaflowException):
 # This would introduce a heavy dependency for the decorator use case, which can be completely avoided with the custom implementation
 # via calling the CLI via subprocess only at the point when execution needs to happen. Decide on the approach after PoC is complete.
 class DBTExecutor():
-    def __init__(self, model: str = None, project_dir: str = None):
+    def __init__(self, model: str = None, project_dir: str = None, target: str = None):
         self.model = model
         self.project_dir = project_dir
+        self.target = target
         self.bin = which("./dbt") or which("dbt")
         if self.bin is None:
             raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
@@ -24,6 +25,8 @@ class DBTExecutor():
             args.extend(["--project-dir",self.project_dir])
         if self.model is not None:
             args.extend(["--model", self.model])
+        if self.target is not None:
+            args.extend(["--target", self.target])
         
         return self._call("run", args)
 

@@ -16,12 +16,16 @@ class DbtStepDecorator(StepDecorator):
     model: str, optional
         Name of model(s) to run. More than one model can be supplied separated by spaces.
         All models will be run by default if no model name is provided.
+    target: str, optional
+        Chooses which target to load from the profiles.yml file.
+        If not specified, it will use the default target from the profiles.
     """
     name = "dbt"
 
     defaults = {
         "project_dir": None,
-        "model": None
+        "model": None,
+        "target": None, 
     }
 
     def __init__(self, attributes=None, statically_defined=False):
@@ -53,7 +57,8 @@ class DbtStepDecorator(StepDecorator):
 
         executor = DBTExecutor(
             model=self.attributes["model"],
-            project_dir=self.attributes["project_dir"]
+            project_dir=self.attributes["project_dir"],
+            target=self.attributes["target"]
         )
 
         out = executor.run()
