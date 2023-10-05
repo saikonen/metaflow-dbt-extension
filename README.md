@@ -28,3 +28,42 @@ This can be done by specifying the project location as a relative or absolute pa
 ```python
 @dbt(model="customers", project_dir="./dbt_project")
 ```
+
+### Supplying credentials
+
+When deploying a DBT flow to be executed remotely, we do not want to bundle up sensitive credentials into the code package. Therefore a plain text `profiles.yml` will not suffice.
+We can utilize the environment variable replacement that DBT offers to get around this.
+
+example `profiles.yml`
+```yaml
+dbt_decorator:
+  outputs:
+    dev:
+      type: postgres
+      threads: 1
+      host: localhost
+      port: 5432
+      user: "{{ env_var('DBT_POSTGRES_USER') }}"
+      pass: "{{ env_var('DBT_POSTGRES_PW') }}"
+      dbname: dbt_decorator
+      schema: dev_jaffle_schema
+
+    prod:
+      type: postgres
+      threads: 1
+      host: localhost
+      port: 5432
+      user: "{{ env_var('DBT_POSTGRES_USER') }}"
+      pass: "{{ env_var('DBT_POSTGRES_PW') }}"
+      dbname: dbt_decorator
+      schema: prod_jaffle_schema
+
+  target: dev
+```
+
+Note: any profiles.yml in the *flow project folder* will be packaged, so make sure that they do not contain sensitive secrets.
+
+We can supply the environment variables in various ways, for example
+- having them already present in the execution environment
+- supplying them with the `@environment` decorator in the flow (this still ends up bundling secrets into the package, but is good for testing)
+- hydrating environment variables with the `@secrets` decorator from a secret manager.
