@@ -1,9 +1,8 @@
 import glob
 import os
 from metaflow.decorators import StepDecorator
-from metaflow.exception import MetaflowException
 
-from .dbt_executor import DBTExecutor
+from .dbt_executor import DBTExecutor, DBTProjectConfig
 
 
 class DbtStepDecorator(StepDecorator):
@@ -96,12 +95,8 @@ class DbtStepDecorator(StepDecorator):
 
         Returns a list of tuples where each tuple represents (file_path, arcname)
         """
-        executor = DBTExecutor(
-            model=self.attributes["model"],
-            project_dir=self.attributes["project_dir"],
-            target=self.attributes["target"],
-        )
-        paths = executor.project_file_paths()
+        config = DBTProjectConfig(self.attributes["project_dir"])
+        paths = config.project_file_paths()
 
         # TODO: verify keys for possible collisions.
         files = [(path, path) for path in paths]
