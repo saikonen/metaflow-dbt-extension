@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 from metaflow.decorators import StepDecorator
 
 from .dbt_executor import DBTExecutor, DBTProjectConfig
@@ -53,6 +54,12 @@ class DbtStepDecorator(StepDecorator):
         ubf_context,
         inputs,
     ):
+        # Fix for conda environments not being able to locate the dbt binary due to conda decorator extending PATH too late in the lifecycle.
+        python_loc = os.path.dirname(os.path.realpath(sys.executable))
+        original_path = os.environ.get("PATH")
+        if python_loc not in original_path:
+            os.environ["PATH"] = os.pathsep.join([python_loc, original_path])
+
         executor = DBTExecutor(
             model=self.attributes["model"],
             project_dir=self.attributes["project_dir"],

@@ -26,7 +26,7 @@ class DBTExecutor:
             raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
 
         conf = DBTProjectConfig(project_dir)
-        self._project_config = conf._project_config
+        self._project_config = conf.project_config
 
     def run_results(self) -> Optional[Dict]:
         return self._read_dbt_artifact("run_results.json")
