@@ -121,7 +121,9 @@ class DBTProjectConfig:
             if rel_path is None:
                 continue
             component_path = os.path.join(self.project_dir or "", rel_path)
-            for path in glob.glob(os.path.join(component_path, "*"), recursive=True):
+            if not os.path.exists(component_path):
+                continue
+            for path in glob.glob(os.path.join(component_path, "**"), recursive=True):
                 files.append(path)
 
         return files
