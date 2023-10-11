@@ -54,6 +54,17 @@ class DBTExecutor:
 
         return self._call("run", args)
 
+    def seed(self) -> str:
+        args = []
+        if self.project_dir is not None:
+            args.extend(["--project-dir", self.project_dir])
+        if self.model is not None:
+            args.extend(["--model", self.model])
+        if self.target is not None:
+            args.extend(["--target", self.target])
+
+        return self._call("seed", args)
+
     def _read_dbt_artifact(self, name: str):
         artifact = os.path.join(
             ".",

@@ -1,7 +1,7 @@
-import glob
 import os
 import sys
 from metaflow.decorators import StepDecorator
+from metaflow.exception import MetaflowException
 
 from .dbt_executor import DBTExecutor, DBTProjectConfig
 
@@ -13,6 +13,9 @@ class DbtStepDecorator(StepDecorator):
 
     Parameters
     ----------
+    command: str, optional. Default 'run'
+        DBT command to execute. Default is 'run'.
+        Supported commands are: run, seed
     project_dir: str, optional
         Path to the DBT project that contains a 'dbt_project.yml'.
         If not specified, the current folder and parent folders will be tried.
@@ -25,8 +28,10 @@ class DbtStepDecorator(StepDecorator):
     """
 
     name = "dbt"
+    allow_multiple = True
 
     defaults = {
+        "command": "run",
         "project_dir": None,
         "model": None,
         "target": None,
@@ -38,7 +43,10 @@ class DbtStepDecorator(StepDecorator):
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
     ):
-        pass
+        if self.attributes["command"] not in ["run", "seed"]:
+            raise MetaflowException(
+                f"command {self.attributes['command']} is not supported."
+            )
 
     def task_pre_step(
         self,
@@ -66,8 +74,13 @@ class DbtStepDecorator(StepDecorator):
             target=self.attributes["target"],
         )
 
-        out = executor.run()
-        print(out)
+        cmd = self.attributes["command"]
+        if cmd == "run":
+            out = executor.run()
+            print(out)
+        if cmd == "seed":
+            out = executor.seed()
+            print(out)
 
         # Write DBT run artifacts as task artifacts.
         # TODO: If required, look into making this available *during* the task execution as well,
