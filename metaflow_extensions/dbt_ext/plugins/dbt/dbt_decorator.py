@@ -6,6 +6,10 @@ from metaflow.exception import MetaflowException
 from .dbt_executor import DBTExecutor, DBTProjectConfig
 
 
+class CommandNotSupported(MetaflowException):
+    headline = "DBT command not supported"
+
+
 class DbtStepDecorator(StepDecorator):
     """
     Decorator to execute DBT models before a step execution begins.
@@ -43,10 +47,10 @@ class DbtStepDecorator(StepDecorator):
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
     ):
-        if self.attributes["command"] not in ["run", "seed"]:
-            raise MetaflowException(
-                f"command {self.attributes['command']} is not supported."
-            )
+        cmd = self.attributes["command"]
+
+        if cmd not in ["run", "seed"]:
+            raise CommandNotSupported(f"command '{cmd}' is not supported.")
 
     def task_pre_step(
         self,
