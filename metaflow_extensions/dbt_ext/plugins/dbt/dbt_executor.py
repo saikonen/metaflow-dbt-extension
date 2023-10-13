@@ -3,7 +3,7 @@ import os
 import json
 import yaml
 import glob
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from metaflow.exception import MetaflowException
 from metaflow.util import which
@@ -17,8 +17,10 @@ class DBTExecutionFailed(MetaflowException):
 # This would introduce a heavy dependency for the decorator use case, which can be completely avoided with the custom implementation
 # via calling the CLI via subprocess only at the point when execution needs to happen. Decide on the approach after PoC is complete.
 class DBTExecutor:
-    def __init__(self, model: str = None, project_dir: str = None, target: str = None):
-        self.model = model
+    def __init__(
+        self, models: List[str] = None, project_dir: str = None, target: str = None
+    ):
+        self.models = " ".join(models) if models is not None else None
         self.project_dir = project_dir
         self.target = target
         self.bin = which("./dbt") or which("dbt")
@@ -47,8 +49,8 @@ class DBTExecutor:
         args = ["--fail-fast"]
         if self.project_dir is not None:
             args.extend(["--project-dir", self.project_dir])
-        if self.model is not None:
-            args.extend(["--model", self.model])
+        if self.models is not None:
+            args.extend(["--models", self.models])
         if self.target is not None:
             args.extend(["--target", self.target])
 
@@ -58,8 +60,8 @@ class DBTExecutor:
         args = []
         if self.project_dir is not None:
             args.extend(["--project-dir", self.project_dir])
-        if self.model is not None:
-            args.extend(["--model", self.model])
+        if self.models is not None:
+            args.extend(["--models", self.models])
         if self.target is not None:
             args.extend(["--target", self.target])
 

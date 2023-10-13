@@ -23,9 +23,8 @@ class DbtStepDecorator(StepDecorator):
     project_dir: str, optional
         Path to the DBT project that contains a 'dbt_project.yml'.
         If not specified, the current folder and parent folders will be tried.
-    model: str, optional
-        Name of model(s) to run. More than one model can be supplied separated by spaces.
-        All models will be run by default if no model name is provided.
+    models: List[str], optional
+        List of model name(s) to run. All models will be run by default if no model name is provided.
     target: str, optional
         Chooses which target to load from the profiles.yml file.
         If not specified, it will use the default target from the profiles.
@@ -37,7 +36,7 @@ class DbtStepDecorator(StepDecorator):
     defaults = {
         "command": "run",
         "project_dir": None,
-        "model": None,
+        "models": None,
         "target": None,
     }
 
@@ -73,7 +72,7 @@ class DbtStepDecorator(StepDecorator):
             os.environ["PATH"] = os.pathsep.join([python_loc, original_path])
 
         executor = DBTExecutor(
-            model=self.attributes["model"],
+            models=self.attributes["models"],
             project_dir=self.attributes["project_dir"],
             target=self.attributes["target"],
         )
