@@ -28,6 +28,8 @@ class DbtStepDecorator(StepDecorator):
     target: str, optional
         Chooses which target to load from the profiles.yml file.
         If not specified, it will use the default target from the profiles.
+    profiles: Dict[str, Union[str, Dict]]
+        a configuration dictionary that will be translated into a valid profiles.yml for the dbt CLI.
     """
 
     name = "dbt"
@@ -38,6 +40,7 @@ class DbtStepDecorator(StepDecorator):
         "project_dir": None,
         "models": None,
         "target": None,
+        "profiles": None,
     }
 
     def __init__(self, attributes=None, statically_defined=False):
@@ -46,6 +49,11 @@ class DbtStepDecorator(StepDecorator):
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
     ):
+        if self.attributes["profiles"] is None:
+            raise MetaflowException(
+                "You must provide a valid 'profiles' for the dbt decorator"
+            )
+
         cmd = self.attributes["command"]
 
         if cmd not in ["run", "seed"]:
@@ -75,6 +83,7 @@ class DbtStepDecorator(StepDecorator):
             models=self.attributes["models"],
             project_dir=self.attributes["project_dir"],
             target=self.attributes["target"],
+            profiles=self.attributes["profiles"],
         )
 
         cmd = self.attributes["command"]

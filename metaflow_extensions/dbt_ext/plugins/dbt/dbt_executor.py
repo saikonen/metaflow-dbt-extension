@@ -1,5 +1,6 @@
 import subprocess
 import os
+import tempfile
 import json
 import yaml
 import glob
@@ -18,7 +19,11 @@ class DBTExecutionFailed(MetaflowException):
 # via calling the CLI via subprocess only at the point when execution needs to happen. Decide on the approach after PoC is complete.
 class DBTExecutor:
     def __init__(
-        self, models: List[str] = None, project_dir: str = None, target: str = None
+        self,
+        models: List[str] = None,
+        project_dir: str = None,
+        target: str = None,
+        profiles: Dict = {},
     ):
         self.models = " ".join(models) if models is not None else None
         self.project_dir = project_dir
@@ -27,6 +32,7 @@ class DBTExecutor:
         if self.bin is None:
             raise DBTExecutionFailed("Can not find DBT binary. Please install DBT")
 
+        self.profiles = profiles
         conf = DBTProjectConfig(project_dir)
         self._project_config = conf.project_config
 
@@ -81,12 +87,19 @@ class DBTExecutor:
             return None
 
     def _call(self, cmd, args):
-        try:
-            return subprocess.check_output(
-                [self.bin, cmd] + args, stderr=subprocess.PIPE
-            ).decode()
-        except subprocess.CalledProcessError as e:
-            raise DBTExecutionFailed(msg=e.output.decode())
+        # Synthesize a profiles.yml from the passed in config dictionary if present.
+        with tempfile.TemporaryDirectory() as tempdir:
+            conf = yaml.dump(self.profiles)
+            f = open(os.path.join(tempdir, "profiles.yml"), "w")
+            f.write(conf)
+            f.close()
+            try:
+                return subprocess.check_output(
+                    [self.bin, cmd] + args + ["--profiles-dir", tempdir],
+                    stderr=subprocess.PIPE,
+                ).decode()
+            except subprocess.CalledProcessError as e:
+                raise DBTExecutionFailed(msg=e.output.decode())
 
 
 # We want a separate construct for the project config, so this can be parsed without requiring the dbt binary to be present on the system.
