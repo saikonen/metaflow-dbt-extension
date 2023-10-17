@@ -4,5 +4,6 @@ build
 
 # ignore DBT examples
 config.py
+profiles.yml
 jaffle_shop
 dbt_project

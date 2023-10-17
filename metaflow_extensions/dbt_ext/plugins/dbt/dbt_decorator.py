@@ -10,6 +10,10 @@ class CommandNotSupported(MetaflowException):
     headline = "DBT command not supported"
 
 
+class MissingProfiles(MetaflowException):
+    headline = "Missing DBT Profiles configuration"
+
+
 class DbtStepDecorator(StepDecorator):
     """
     Decorator to execute DBT models before a step execution begins.
@@ -49,9 +53,11 @@ class DbtStepDecorator(StepDecorator):
     def step_init(
         self, flow, graph, step_name, decorators, environment, flow_datastore, logger
     ):
-        if self.attributes["profiles"] is None:
-            raise MetaflowException(
-                "You must provide a valid 'profiles' for the dbt decorator"
+        if self.attributes["profiles"] is None and not os.path.exists("./profiles.yml"):
+            raise MissingProfiles(
+                "You must provide profiles configuration for the DBT decorator.\n"
+                "Either provide a dictionary for the 'profiles=' attribute "
+                "or create a 'profiles.yml' file in the flow folder."
             )
 
         cmd = self.attributes["command"]

@@ -89,13 +89,17 @@ class DBTExecutor:
     def _call(self, cmd, args):
         # Synthesize a profiles.yml from the passed in config dictionary if present.
         with tempfile.TemporaryDirectory() as tempdir:
-            conf = yaml.dump(self.profiles)
-            f = open(os.path.join(tempdir, "profiles.yml"), "w")
-            f.write(conf)
-            f.close()
+            profile_args = []
+            if self.profiles is not None:
+                conf = yaml.dump(self.profiles)
+                f = open(os.path.join(tempdir, "profiles.yml"), "w")
+                f.write(conf)
+                f.close()
+                profile_args = ["--profiles-dir", tempdir]
+
             try:
                 return subprocess.check_output(
-                    [self.bin, cmd] + args + ["--profiles-dir", tempdir],
+                    [self.bin, cmd] + args + profile_args,
                     stderr=subprocess.PIPE,
                 ).decode()
             except subprocess.CalledProcessError as e:
