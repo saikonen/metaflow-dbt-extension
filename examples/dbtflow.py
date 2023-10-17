@@ -1,58 +1,7 @@
 from metaflow import step, FlowSpec, dbt, environment
+from config import DBT_PROFILES
 
-
-DBT_PROFILES = {
-    "jaffle_shop": {
-        "outputs": {
-            "dev": {
-                "type": "postgres",
-                "threads": 1,
-                "host": "{{ env_var('dbhost', 'localhost') }}",
-                "port": 5432,
-                "user": "{{ env_var('username') }}",
-                "pass": "{{ env_var('password') }}",
-                "dbname": "dbt_decorator",
-                "schema": "dev_jaffle_schema",
-            },
-            "prod": {
-                "type": "postgres",
-                "threads": 1,
-                "host": "{{ env_var('dbhost', 'localhost') }}",
-                "port": 5432,
-                "user": "{{ env_var('username') }}",
-                "pass": "{{ env_var('password') }}",
-                "dbname": "dbt_decorator",
-                "schema": "prod_jaffle_schema",
-            },
-        },
-        "target": "dev",
-    },
-    "dbt_project": {
-        "outputs": {
-            "dev": {
-                "type": "postgres",
-                "threads": 1,
-                "host": "{{ env_var('dbhost', 'localhost') }}",
-                "port": 5432,
-                "user": "{{ env_var('username') }}",
-                "pass": "{{ env_var('password') }}",
-                "dbname": "dbt_decorator",
-                "schema": "dev_dbt_schema",
-            },
-            "prod": {
-                "type": "postgres",
-                "threads": 1,
-                "host": "{{ env_var('dbhost', 'localhost') }}",
-                "port": 5432,
-                "user": "{{ env_var('username') }}",
-                "pass": "{{ env_var('password') }}",
-                "dbname": "dbt_decorator",
-                "schema": "prod_dbt_schema",
-            },
-        },
-        "target": "dev",
-    },
-}
+ENVS = {"username": "postgres", "password": "postgres"}
 
 
 class DBTFlow(FlowSpec):
@@ -61,14 +10,14 @@ class DBTFlow(FlowSpec):
         print("Start step for debugging")
         self.next(self.dbt_project, self.jaffle_seed)
 
-    @environment(vars={"username": "postgres", "password": "postgres"})
+    @environment(vars=ENVS)
     @dbt(project_dir="./dbt_project", target="dev", profiles=DBT_PROFILES)
     @step
     def dbt_project(self):
         print("dbt_project DBT run")
         self.next(self.join)
 
-    @environment(vars={"username": "postgres", "password": "postgres"})
+    @environment(vars=ENVS)
     @dbt(command="seed", project_dir="./jaffle_shop", profiles=DBT_PROFILES)
     @step
     def jaffle_seed(self):
@@ -76,21 +25,21 @@ class DBTFlow(FlowSpec):
         print("Seeded jaffle_shop")
         self.next(self.jaffle_staging)
 
-    @environment(vars={"username": "postgres", "password": "postgres"})
+    @environment(vars=ENVS)
     @dbt(models=["staging"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
     @step
     def jaffle_staging(self):
         print("jaffle_shop DBT run: staging")
         self.next(self.jaffle_customers, self.jaffle_orders)
 
-    @environment(vars={"username": "postgres", "password": "postgres"})
+    @environment(vars=ENVS)
     @dbt(models=["customers"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
     @step
     def jaffle_customers(self):
         print("jaffle_shop DBT run: customers")
         self.next(self.jaffle_join)
 
-    @environment(vars={"username": "postgres", "password": "postgres"})
+    @environment(vars=ENVS)
     @dbt(models=["orders"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
     @step
     def jaffle_orders(self):

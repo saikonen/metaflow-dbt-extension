@@ -28,7 +28,7 @@ DBT_PROFILES = {
         },
         "target": "dev",
     },
-    "dbt_decorator": {
+    "dbt_project": {
         "outputs": {
             "dev": {
                 "type": "postgres",
