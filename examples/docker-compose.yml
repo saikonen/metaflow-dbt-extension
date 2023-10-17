@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:13
+    # command: ["postgres", "-c", "log_statement=none", "-c", "wal_level=logical"]
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dbt_decorator
+    ports:
+        - "5432:5432"
+    volumes:
+      - dbtdata:/var/lib/postgresql/data
+
+volumes:
+  dbtdata:
