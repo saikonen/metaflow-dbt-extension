@@ -15,9 +15,9 @@ def start(self):
     self.next(self.second_step)
 ```
 
-If you only want to run a specific model as part of a step, you can specify this with the `model=` attribute
+If you only want to run a specific model as part of a step, you can specify this with the `models=` attribute
 ```python
-@dbt(model="customers")
+@dbt(models="customers")
 ```
 
 ## Configuration options
@@ -26,7 +26,7 @@ If you only want to run a specific model as part of a step, you can specify this
 You might want to keep the DBT project separately nested within the Flow project. In these cases you would need to specify the location of the DBT project folder, due to the way project lookup works.
 This can be done by specifying the project location as a relative or absolute path within the decorator
 ```python
-@dbt(model="customers", project_dir="./dbt_project")
+@dbt(models="customers", project_dir="./dbt_project")
 ```
 
 ### Supplying credentials
@@ -34,8 +34,8 @@ This can be done by specifying the project location as a relative or absolute pa
 When deploying a DBT flow to be executed remotely, we do not want to bundle up sensitive credentials into the code package. Therefore a plain text `profiles.yml` will not suffice.
 We can utilize the environment variable replacement that DBT offers to get around this.
 
-example `profiles.yml`
-```yaml
+example profiles:
+```python
 dbt_decorator:
   outputs:
     dev:
@@ -67,3 +67,7 @@ We can supply the environment variables in various ways, for example
 - having them already present in the execution environment
 - supplying them with the `@environment` decorator in the flow (this still ends up bundling secrets into the package, but is good for testing)
 - hydrating environment variables with the `@secrets` decorator from a secret manager.
+
+## Examples
+
+Check out the example flows in the `/examples` folder for detailed usage.
