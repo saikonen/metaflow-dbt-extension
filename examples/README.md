@@ -31,4 +31,17 @@ For our example we use AWS Secrets Manager for storing credentials to an RDS Pos
 
 ```sh
 python remotedbtflow.py --environment conda run --with kubernetes
-````
+```
+
+the flow should work just as well with `batch`, `step-functions` and `argo-workflow`
+
+
+## Utility: Create a missing database with a flow
+
+If you happen to have a database instance that is not easily accessible from the outside, and you are missing the necessary `dbt_decorator` database from the instance, there is a convenient utility flow provided: `createdbflow.py`
+
+After editing the `config.py`, you should be able to run the flow, which will try to create the missing database on the instance if the IAM role has sufficient permissions.
+
+```sh
+python createdbflow.py --environment conda run --with kubernetes
+```
