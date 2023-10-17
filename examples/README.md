@@ -10,6 +10,8 @@ which will create the following projects
 - `examples/dbt_project`
 - `examples/jaffle_shop`
 
+along with a placeholder `config.py` which you can fill with further constants as needed.
+
 
 ## Local DBT run
 
@@ -25,3 +27,8 @@ python dbtflow.py --environment conda --metadata local --datastore local run
 
 ## Remote execution
 
+For our example we use AWS Secrets Manager for storing credentials to an RDS Postgres instance. You need to replace the values in `config.py` with the correct secret key, and db host. When this is done, the following flow should execute successfully.
+
+```sh
+python remotedbtflow.py --environment conda run --with kubernetes
+````
