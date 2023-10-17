@@ -70,4 +70,4 @@ We can supply the environment variables in various ways, for example
 
 ## Examples
 
-Check out the example flows in the `/examples` folder for detailed usage.
+Check out the example flows in the [`/examples`](./examples/README.md) folder for detailed usage.
