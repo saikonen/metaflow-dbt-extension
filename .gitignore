@@ -8,3 +8,4 @@ config.py
 profiles.yml
 jaffle_shop
 dbt_project
+dbt_packages
