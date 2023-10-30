@@ -51,6 +51,9 @@ class DBTExecutor:
     def sources(self) -> Optional[Dict]:
         return self._read_dbt_artifact("sources.json")
 
+    def static_index(self) -> Optional[Dict]:
+        return self._read_dbt_artifact("static_index.html")
+
     def run(self) -> str:
         args = ["--fail-fast"]
         if self.project_dir is not None:
@@ -72,6 +75,18 @@ class DBTExecutor:
             args.extend(["--target", self.target])
 
         return self._call("seed", args)
+
+    def generate_docs(self) -> str:
+        # The static docs generation requires dbt-core >= 1.7
+        args = ["generate", "--static", "--no-compile"]
+        if self.project_dir is not None:
+            args.extend(["--project-dir", self.project_dir])
+        if self.models is not None:
+            args.extend(["--models", self.models])
+        if self.target is not None:
+            args.extend(["--target", self.target])
+
+        return self._call("docs", args)
 
     def _read_dbt_artifact(self, name: str):
         artifact = os.path.join(
