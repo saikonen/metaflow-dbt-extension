@@ -52,7 +52,7 @@ class DBTExecutor:
         return self._read_dbt_artifact("sources.json")
 
     def static_index(self) -> Optional[Dict]:
-        return self._read_dbt_artifact("static_index.html")
+        return self._read_dbt_artifact("static_index.html", raw=True)
 
     def run(self) -> str:
         args = ["--fail-fast"]
@@ -88,7 +88,7 @@ class DBTExecutor:
 
         return self._call("docs", args)
 
-    def _read_dbt_artifact(self, name: str):
+    def _read_dbt_artifact(self, name: str, raw: bool = False):
         artifact = os.path.join(
             ".",
             self.project_dir or "",
@@ -97,7 +97,7 @@ class DBTExecutor:
         )
         try:
             with open(artifact) as m:
-                return json.load(m)
+                return m.readlines() if raw else json.load(m)
         except FileNotFoundError:
             return None
 
