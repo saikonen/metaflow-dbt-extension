@@ -97,7 +97,7 @@ class DBTExecutor:
         )
         try:
             with open(artifact) as m:
-                return m.readlines() if raw else json.load(m)
+                return m.read() if raw else json.load(m)
         except FileNotFoundError:
             return None
 

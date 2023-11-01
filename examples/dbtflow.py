@@ -27,7 +27,12 @@ class DBTFlow(FlowSpec):
 
     @card(type="dbt_docs")
     @environment(vars=ENVS)
-    @dbt(models=["staging"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        models=["staging"],
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @step
     def jaffle_staging(self):
         print("jaffle_shop DBT run: staging")
