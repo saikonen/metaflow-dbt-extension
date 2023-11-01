@@ -45,6 +45,7 @@ class DbtStepDecorator(StepDecorator):
         "models": None,
         "target": None,
         "profiles": None,
+        "generate_docs": False,
     }
 
     def __init__(self, attributes=None, statically_defined=False):
@@ -100,6 +101,10 @@ class DbtStepDecorator(StepDecorator):
             out = executor.seed()
             print(out)
 
+        if self.attributes["generate_docs"]:
+            out = executor.generate_docs()
+            print(out)
+
         # Write DBT run artifacts as task artifacts.
         # TODO: If required, look into making this available *during* the task execution as well,
         # by somehow making f.ex. self.run_results be persisted before the task initializes.
@@ -112,6 +117,7 @@ class DbtStepDecorator(StepDecorator):
                 "manifest": executor.manifest,
                 "sources": executor.sources,
                 "catalog": executor.catalog,
+                "static_index": executor.static_index,
             }
             for name, func in artifacts.items():
                 val = func()

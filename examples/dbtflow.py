@@ -1,4 +1,4 @@
-from metaflow import step, FlowSpec, dbt, environment
+from metaflow import step, FlowSpec, dbt, environment, card
 from config import DBT_PROFILES
 
 ENVS = {"username": "postgres", "password": "postgres"}
@@ -25,8 +25,14 @@ class DBTFlow(FlowSpec):
         print("Seeded jaffle_shop")
         self.next(self.jaffle_staging)
 
+    @card(type="dbt_docs")
     @environment(vars=ENVS)
-    @dbt(models=["staging"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        models=["staging"],
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @step
     def jaffle_staging(self):
         print("jaffle_shop DBT run: staging")
