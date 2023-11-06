@@ -11,7 +11,12 @@ class DBTFlow(FlowSpec):
         self.next(self.dbt_project, self.jaffle_seed)
 
     @environment(vars=ENVS)
-    @dbt(project_dir="./dbt_project", target="dev", profiles=DBT_PROFILES)
+    @dbt(
+        project_dir="./dbt_project",
+        target="dev",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @step
     def dbt_project(self):
         print("dbt_project DBT run")
@@ -25,7 +30,6 @@ class DBTFlow(FlowSpec):
         print("Seeded jaffle_shop")
         self.next(self.jaffle_staging)
 
-    @card(type="dbt_docs")
     @environment(vars=ENVS)
     @dbt(
         models=["staging"],
@@ -39,7 +43,12 @@ class DBTFlow(FlowSpec):
         self.next(self.jaffle_customers, self.jaffle_orders)
 
     @environment(vars=ENVS)
-    @dbt(models=["customers"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        models=["customers"],
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @step
     def jaffle_customers(self):
         print("jaffle_shop DBT run: customers")

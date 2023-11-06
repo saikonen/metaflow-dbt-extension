@@ -1,5 +1,8 @@
 __mf_extensions__ = "dbt-ext"
 
+# Make the switch decorator available at the top level.
+from ..plugins.dbt import dbt_deco as dbt
+
 import pkg_resources
 
 try:

@@ -1,4 +1,4 @@
-STEP_DECORATORS_DESC = [("dbt", ".dbt.dbt_decorator.DbtStepDecorator")]
+STEP_DECORATORS_DESC = [("_internal_dbt", ".dbt.dbt_decorator.DbtStepDecorator")]
 
 ###
 # CONFIGURE: Similar to datatools, you can make visible under metaflow.plugins.* other
