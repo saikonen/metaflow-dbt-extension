@@ -26,5 +26,5 @@ setup(
         "metaflow_extensions",
     ],
     python_requires=">=3.8",
-    install_requires=["metaflow>=2.8.3", "dbt-core==1.7.0rc1", "pyyaml"],
+    install_requires=["metaflow>=2.8.3", "dbt-core>=1.7.0", "pyyaml"],
 )

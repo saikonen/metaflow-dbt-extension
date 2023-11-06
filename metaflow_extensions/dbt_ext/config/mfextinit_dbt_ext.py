@@ -13,4 +13,4 @@ DBT_ADAPTER_NAME = from_conf("DBT_ADAPTER_NAME", "postgres")
 
 
 def get_pinned_conda_libs(python_version, datastore_type):
-    return {"pyyaml": "6.0", f"dbt-{DBT_ADAPTER_NAME}": "1.7.0rc1"}
+    return {"pyyaml": "6.0", f"dbt-{DBT_ADAPTER_NAME}": "1.7.0"}
