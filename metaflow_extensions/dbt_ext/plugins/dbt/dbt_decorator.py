@@ -36,7 +36,7 @@ class DbtStepDecorator(StepDecorator):
         a configuration dictionary that will be translated into a valid profiles.yml for the dbt CLI.
     """
 
-    name = "_internal_dbt"
+    name = "_dbt"
     allow_multiple = True
 
     defaults = {
