@@ -37,7 +37,6 @@ class DbtStepDecorator(StepDecorator):
     """
 
     name = "_dbt"
-    allow_multiple = True
 
     defaults = {
         "command": "run",
