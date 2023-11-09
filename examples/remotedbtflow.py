@@ -8,7 +8,12 @@ class DBTFlow(FlowSpec):
         print("Start step for debugging")
         self.next(self.dbt_project, self.jaffle_seed)
 
-    @dbt(project_dir="dbt_project", target="dev", profiles=DBT_PROFILES)
+    @dbt(
+        project_dir="dbt_project",
+        target="dev",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
     @step
@@ -16,7 +21,12 @@ class DBTFlow(FlowSpec):
         print("dbt_project DBT run")
         self.next(self.join)
 
-    @dbt(command="seed", project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        command="seed",
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
     @step
@@ -25,7 +35,12 @@ class DBTFlow(FlowSpec):
         print("Seeded jaffle_shop")
         self.next(self.jaffle_staging)
 
-    @dbt(models=["staging"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        models=["staging"],
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
     @step
@@ -33,7 +48,12 @@ class DBTFlow(FlowSpec):
         print("jaffle_shop DBT run: staging")
         self.next(self.jaffle_customers, self.jaffle_orders)
 
-    @dbt(models=["customers"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        models=["customers"],
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
     @step
@@ -41,7 +61,12 @@ class DBTFlow(FlowSpec):
         print("jaffle_shop DBT run: customers")
         self.next(self.jaffle_join)
 
-    @dbt(models=["orders"], project_dir="./jaffle_shop", profiles=DBT_PROFILES)
+    @dbt(
+        models=["orders"],
+        project_dir="./jaffle_shop",
+        profiles=DBT_PROFILES,
+        generate_docs=True,
+    )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
     @step
