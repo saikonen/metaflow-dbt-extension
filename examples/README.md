@@ -35,6 +35,16 @@ python remotedbtflow.py --environment conda run --with kubernetes
 
 the flow should work just as well with `batch`, `step-functions` and `argo-workflow`
 
+Alternatively you can define a base Docker image that has the necessary requirements for executing DBT. You can try using the official DBT images as follows:
+
+```sh
+export METAFLOW_DEFAULT_CONTAINER_REGISTRY="ghcr.io/dbt-labs"
+export METAFLOW_DEFAULT_CONTAINER_IMAGE="dbt-postgres:1.7.0"
+python remotedbtflow.py run --with kubernetes
+```
+
+Note: DBT version 1.7.0 is the minimum required version to support generating documentation as part of the flow with `generate_docs=True`
+
 
 ## Utility: Create a missing database with a flow
 
