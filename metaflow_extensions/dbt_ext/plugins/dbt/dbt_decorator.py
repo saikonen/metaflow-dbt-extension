@@ -2,6 +2,7 @@ import os
 import sys
 from metaflow.decorators import StepDecorator
 from metaflow.exception import MetaflowException
+from metaflow.metaflow_config import DBT_STATE_STORAGE
 
 from .dbt_executor import DBTExecutor, DBTProjectConfig
 
@@ -12,6 +13,10 @@ class CommandNotSupported(MetaflowException):
 
 class MissingProfiles(MetaflowException):
     headline = "Missing DBT Profiles configuration"
+
+
+class MissingStateStorage(MetaflowException):
+    headline = "Missing DBT State Storage configuration"
 
 
 class DbtStepDecorator(StepDecorator):
@@ -45,6 +50,7 @@ class DbtStepDecorator(StepDecorator):
         "target": None,
         "profiles": None,
         "generate_docs": False,
+        "use_state": False,
     }
 
     def __init__(self, attributes=None, statically_defined=False):
@@ -64,6 +70,12 @@ class DbtStepDecorator(StepDecorator):
 
         if cmd not in ["run", "seed"]:
             raise CommandNotSupported(f"command '{cmd}' is not supported.")
+
+        if not self.attributes["use_state"] and not DBT_STATE_STORAGE:
+            raise MissingStateStorage(
+                "'use_state' requires that a state storage location (S3) is configured.\n"
+                "You can do this with the environment variable METAFLOW_DBT_STATE_STORAGE"
+            )
 
     def task_pre_step(
         self,
@@ -85,11 +97,17 @@ class DbtStepDecorator(StepDecorator):
         if python_loc not in original_path:
             os.environ["PATH"] = os.pathsep.join([python_loc, original_path])
 
+        # We want to use a run and task independent prefix for the state store,
+        # so that consecutive executions have a known location to look in for previous state
+        state_prefix = f"{flow.name}/{step_name}"
         executor = DBTExecutor(
             models=self.attributes["models"],
             project_dir=self.attributes["project_dir"],
             target=self.attributes["target"],
             profiles=self.attributes["profiles"],
+            state_store=os.path.join(DBT_STATE_STORAGE, state_prefix)
+            if DBT_STATE_STORAGE
+            else None,
         )
 
         cmd = self.attributes["command"]

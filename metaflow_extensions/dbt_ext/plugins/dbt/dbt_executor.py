@@ -4,10 +4,12 @@ import tempfile
 import json
 import yaml
 import glob
+import shutil
 from typing import Dict, List, Optional
 
 from metaflow.exception import MetaflowException
 from metaflow.util import which
+from metaflow.plugins.datatools.s3 import S3
 
 
 class DBTExecutionFailed(MetaflowException):
@@ -24,6 +26,7 @@ class DBTExecutor:
         project_dir: str = None,
         target: str = None,
         profiles: Dict = {},
+        state_store: str = None,
     ):
         self.models = " ".join(models) if models is not None else None
         self.project_dir = project_dir
@@ -35,6 +38,7 @@ class DBTExecutor:
         self.profiles = profiles
         conf = DBTProjectConfig(project_dir)
         self._project_config = conf.project_config
+        self.state_store = state_store
 
     def run_results(self) -> Optional[Dict]:
         return self._read_dbt_artifact("run_results.json")
@@ -101,6 +105,26 @@ class DBTExecutor:
         except FileNotFoundError:
             return None
 
+    def _push_state(self):
+        # Push new state to DBT_STATE_STORAGE if self.state_store
+        if not self.state_store:
+            return
+        files = {"manifest.json": self.manifest, "run_results.json": self.run_results}
+        with S3(s3root=self.state_store) as s3:
+            for file, _get in files.items():
+                val = _get()
+                if val is not None:
+                    s3.put(file, json.dumps(val))
+
+    def _pull_state(self, tempdir):
+        # Fetch previous state from DBT_STATE_STORAGE if self.state_store
+        if not self.state_store:
+            return
+        with S3(s3root=self.state_store) as s3:
+            files = s3.get_all()
+            for file in files:
+                shutil.copy(file.path, os.path.join(tempdir, file.key))
+
     def _call(self, cmd, args):
         # Synthesize a profiles.yml from the passed in config dictionary if present.
         with tempfile.TemporaryDirectory() as tempdir:
@@ -112,13 +136,23 @@ class DBTExecutor:
                 f.close()
                 profile_args = ["--profiles-dir", tempdir]
 
+            state_args = []
+            if self.state_store:
+                state_path = os.path.join(tempdir, "prev_state")
+                os.makedirs(state_path)
+                state_args = ["--state", state_path]
+                self._pull_state(state_path)
+
             try:
                 return subprocess.check_output(
-                    [self.bin, cmd] + args + profile_args,
+                    [self.bin, cmd] + args + profile_args + state_args,
                     stderr=subprocess.PIPE,
                 ).decode()
             except subprocess.CalledProcessError as e:
                 raise DBTExecutionFailed(msg=e.output.decode())
+            finally:
+                # Push artifacts to S3 if self.state_store
+                self._push_state()
 
 
 # We want a separate construct for the project config, so this can be parsed without requiring the dbt binary to be present on the system.

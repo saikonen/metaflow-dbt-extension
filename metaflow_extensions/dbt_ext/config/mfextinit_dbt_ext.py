@@ -12,5 +12,8 @@ DEBUG_OPTIONS = ["dbtdebug"]
 DBT_ADAPTER_NAME = from_conf("DBT_ADAPTER_NAME", "postgres")
 
 
+DBT_STATE_STORAGE = from_conf("DBT_STATE_STORAGE", None)
+
+
 def get_pinned_conda_libs(python_version, datastore_type):
     return {"pyyaml": "6.0", f"dbt-{DBT_ADAPTER_NAME}": "1.7.0"}
