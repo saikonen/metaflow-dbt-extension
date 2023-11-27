@@ -123,8 +123,13 @@ class DbtStepDecorator(StepDecorator):
             print(out)
 
         if self.attributes["generate_docs"]:
-            out = executor.generate_docs()
-            print(out)
+            try:
+                # This might fail due to DBT version not supporting docs creation.
+                # We don't want to fail outright due to docs alone
+                out = executor.generate_docs()
+            except Exception:
+                print(out)
+                pass
 
         # Write DBT run artifacts as task artifacts.
         # TODO: If required, look into making this available *during* the task execution as well,
