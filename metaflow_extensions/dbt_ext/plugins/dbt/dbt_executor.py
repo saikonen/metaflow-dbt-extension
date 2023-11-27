@@ -26,7 +26,8 @@ class DBTExecutor:
         project_dir: str = None,
         target: str = None,
         profiles: Dict = {},
-        state_store: str = None,
+        state_prefix: str = None,
+        ds_type=None,
     ):
         self.models = " ".join(models) if models is not None else None
         self.project_dir = project_dir
@@ -38,7 +39,18 @@ class DBTExecutor:
         self.profiles = profiles
         conf = DBTProjectConfig(project_dir)
         self._project_config = conf.project_config
-        self.state_store = state_store
+        self.datastore = None
+        self.state_prefix = state_prefix
+        if self.state_prefix:
+            self._init_datastore(ds_type)
+
+    def _init_datastore(self, ds_type):
+        from metaflow.plugins import DATASTORES
+
+        datastore = [d for d in DATASTORES if d.TYPE == ds_type][0]
+
+        root = datastore.get_datastore_root_from_config(print)
+        self.datastore = datastore(f"{root}/dbt_state/{self.state_prefix}")
 
     def run_results(self) -> Optional[Dict]:
         return self._read_dbt_artifact("run_results.json")
@@ -106,24 +118,36 @@ class DBTExecutor:
             return None
 
     def _push_state(self):
-        # Push new state to DBT_STATE_STORAGE if self.state_store
-        if not self.state_store:
+        # Push new state to self.datastore if configured
+        if not self.datastore:
             return
-        files = {"manifest.json": self.manifest, "run_results.json": self.run_results}
-        with S3(s3root=self.state_store) as s3:
-            for file, _get in files.items():
-                val = _get()
-                if val is not None:
-                    s3.put(file, json.dumps(val))
+        files_and_paths = {
+            key: os.path.join(
+                ".",
+                self.project_dir or "",
+                self._project_config.get("target", "target"),
+                key,
+            )
+            for key in ["manifest.json", "run_results.json"]
+        }
+        files_and_handles = {
+            key: open(path, mode="rb")
+            for key, path in files_and_paths.items()
+            if os.path.exists(path)
+        }
+
+        self.datastore.save_bytes(
+            (name, content) for name, content in files_and_handles.items()
+        )
 
     def _pull_state(self, tempdir):
-        # Fetch previous state from DBT_STATE_STORAGE if self.state_store
-        if not self.state_store:
+        # Fetch previous state to tempdir from self.datastore if configured
+        if not self.datastore:
             return
-        with S3(s3root=self.state_store) as s3:
-            files = s3.get_all()
-            for file in files:
-                shutil.copy(file.path, os.path.join(tempdir, file.key))
+        with self.datastore.load_bytes(["manifest.json", "run_results.json"]) as result:
+            for key, file, _ in result:
+                if file is not None:
+                    shutil.move(file, os.path.join(tempdir, key))
 
     def _call(self, cmd, args):
         # Synthesize a profiles.yml from the passed in config dictionary if present.
@@ -137,7 +161,7 @@ class DBTExecutor:
                 profile_args = ["--profiles-dir", tempdir]
 
             state_args = []
-            if self.state_store:
+            if self.datastore:
                 state_path = os.path.join(tempdir, "prev_state")
                 os.makedirs(state_path)
                 state_args = ["--state", state_path]
@@ -151,7 +175,7 @@ class DBTExecutor:
             except subprocess.CalledProcessError as e:
                 raise DBTExecutionFailed(msg=e.output.decode())
             finally:
-                # Push artifacts to S3 if self.state_store
+                # Push state artifacts to self.datastore
                 self._push_state()
 
 

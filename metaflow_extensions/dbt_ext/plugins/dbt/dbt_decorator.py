@@ -2,7 +2,6 @@ import os
 import sys
 from metaflow.decorators import StepDecorator
 from metaflow.exception import MetaflowException
-from metaflow.metaflow_config import DBT_STATE_STORAGE
 
 from .dbt_executor import DBTExecutor, DBTProjectConfig
 
@@ -71,10 +70,16 @@ class DbtStepDecorator(StepDecorator):
         if cmd not in ["run", "seed"]:
             raise CommandNotSupported(f"command '{cmd}' is not supported.")
 
-        if not self.attributes["use_state"] and not DBT_STATE_STORAGE:
+        if (
+            not self.attributes["use_state"]
+            and self.attributes["models"]
+            and any(
+                any(sel in val for val in self.attributes["models"])
+                for sel in ["results:", "state:"]
+            )
+        ):
             raise MissingStateStorage(
-                "'use_state' requires that a state storage location (S3) is configured.\n"
-                "You can do this with the environment variable METAFLOW_DBT_STATE_STORAGE"
+                "When using state selectors you need to enable state storage by specifying 'use_state=True'"
             )
 
     def task_pre_step(
@@ -105,9 +110,8 @@ class DbtStepDecorator(StepDecorator):
             project_dir=self.attributes["project_dir"],
             target=self.attributes["target"],
             profiles=self.attributes["profiles"],
-            state_store=os.path.join(DBT_STATE_STORAGE, state_prefix)
-            if DBT_STATE_STORAGE
-            else None,
+            state_prefix=state_prefix if self.attributes["use_state"] else None,
+            ds_type=task_datastore.TYPE,
         )
 
         cmd = self.attributes["command"]
