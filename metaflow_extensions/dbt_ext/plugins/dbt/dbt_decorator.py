@@ -75,7 +75,7 @@ class DbtStepDecorator(StepDecorator):
             and self.attributes["models"]
             and any(
                 any(sel in val for val in self.attributes["models"])
-                for sel in ["results:", "state:"]
+                for sel in ["result:", "state:"]
             )
         ):
             raise MissingStateStorage(
