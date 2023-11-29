@@ -161,11 +161,25 @@ class DBTExecutor:
                 profile_args = ["--profiles-dir", tempdir]
 
             state_args = []
+            # If datastore is configured, we intend to use a previous state.
             if self.datastore:
                 state_path = os.path.join(tempdir, "prev_state")
                 os.makedirs(state_path)
-                state_args = ["--state", state_path]
                 self._pull_state(state_path)
+                if os.listdir(state_path):
+                    # a previous state was available.
+                    state_args = ["--state", state_path]
+                else:
+                    # we do not have a previous state,
+                    # so we need to clean up any known state selectors from args in order to avoid errors.
+                    def _cleanup(arg: str):
+                        split = arg.split(",")
+                        args = [
+                            a for a in split if not "state:" in a and not "result:" in a
+                        ]
+                        return ",".join(args)
+
+                    args = [_cleanup(arg) for arg in args]
 
             try:
                 return subprocess.check_output(

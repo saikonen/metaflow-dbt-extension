@@ -49,7 +49,6 @@ class DbtStepDecorator(StepDecorator):
         "target": None,
         "profiles": None,
         "generate_docs": False,
-        "use_state": False,
     }
 
     def __init__(self, attributes=None, statically_defined=False):
@@ -70,17 +69,11 @@ class DbtStepDecorator(StepDecorator):
         if cmd not in ["run", "seed"]:
             raise CommandNotSupported(f"command '{cmd}' is not supported.")
 
-        if (
-            not self.attributes["use_state"]
-            and self.attributes["models"]
-            and any(
-                any(sel in val for val in self.attributes["models"])
-                for sel in ["result:", "state:"]
-            )
-        ):
-            raise MissingStateStorage(
-                "When using state selectors you need to enable state storage by specifying 'use_state=True'"
-            )
+        # Do we need persisted state due to the selectors or not?
+        self.use_state = self.attributes["models"] and any(
+            any(sel in val for val in self.attributes["models"])
+            for sel in ["result:", "state:"]
+        )
 
     def task_pre_step(
         self,
@@ -110,7 +103,7 @@ class DbtStepDecorator(StepDecorator):
             project_dir=self.attributes["project_dir"],
             target=self.attributes["target"],
             profiles=self.attributes["profiles"],
-            state_prefix=state_prefix if self.attributes["use_state"] else None,
+            state_prefix=state_prefix if self.use_state else None,
             ds_type=task_datastore.TYPE,
         )
 

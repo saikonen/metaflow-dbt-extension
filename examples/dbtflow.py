@@ -32,7 +32,7 @@ class DBTFlow(FlowSpec):
 
     @environment(vars=ENVS)
     @dbt(
-        models=["staging"],
+        models=["staging,state:modified", "result:error"],
         project_dir="./jaffle_shop",
         profiles=DBT_PROFILES,
         generate_docs=True,

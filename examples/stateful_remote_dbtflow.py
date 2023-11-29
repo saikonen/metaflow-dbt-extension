@@ -1,9 +1,7 @@
 from metaflow import step, FlowSpec, dbt, environment, secrets
 from config import DBT_PROFILES, SECRET_SRC, HOST_ENV
 
-# NOTE: Due to a limitation with DBT itself in order to utilize state selectors,
-# a previous state needs to already exist. If you are running this example for the first time
-# remove the 'state:' and 'result:' selectors temporarily.
+
 class DBTFlow(FlowSpec):
     @step
     def start(self):
@@ -29,7 +27,6 @@ class DBTFlow(FlowSpec):
         project_dir="./jaffle_shop",
         profiles=DBT_PROFILES,
         generate_docs=True,
-        use_state=True,
     )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
@@ -44,7 +41,6 @@ class DBTFlow(FlowSpec):
         project_dir="./jaffle_shop",
         profiles=DBT_PROFILES,
         generate_docs=True,
-        use_state=True,
     )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
@@ -58,7 +54,6 @@ class DBTFlow(FlowSpec):
         project_dir="./jaffle_shop",
         profiles=DBT_PROFILES,
         generate_docs=True,
-        use_state=True,
     )
     @secrets(sources=SECRET_SRC)
     @environment(vars=HOST_ENV)
