@@ -173,6 +173,7 @@ class DBTExecutor:
                     # we do not have a previous state,
                     # so we need to clean up any known state selectors from args in order to avoid errors.
                     def _cleanup(arg: str):
+                        # TODO: Add debug message.
                         split = arg.split(",")
                         args = [
                             a for a in split if not "state:" in a and not "result:" in a

@@ -48,7 +48,8 @@ class DbtStepDecorator(StepDecorator):
         "models": None,
         "target": None,
         "profiles": None,
-        "generate_docs": False,
+        "generate_docs": False,  # TODO: This could also be true by default
+        #  TODO: Add way to specify adapter through decorator as well.
     }
 
     def __init__(self, attributes=None, statically_defined=False):
@@ -90,6 +91,7 @@ class DbtStepDecorator(StepDecorator):
         inputs,
     ):
         # Fix for conda environments not being able to locate the dbt binary due to conda decorator extending PATH too late in the lifecycle.
+        # TODO: try out task_decorate for execution instead in order to get rid of PATH fix.
         python_loc = os.path.dirname(os.path.realpath(sys.executable))
         original_path = os.environ.get("PATH")
         if python_loc not in original_path:
@@ -97,6 +99,7 @@ class DbtStepDecorator(StepDecorator):
 
         # We want to use a run and task independent prefix for the state store,
         # so that consecutive executions have a known location to look in for previous state
+        # TODO: cover projects.
         state_prefix = f"{flow.name}/{step_name}"
         executor = DBTExecutor(
             models=self.attributes["models"],
@@ -129,6 +132,8 @@ class DbtStepDecorator(StepDecorator):
         # by somehow making f.ex. self.run_results be persisted before the task initializes.
         # As it is now, the run_results will only be available through self in subsequent steps,
         # but not the one with the decorator.
+        # TODO: check out https://github.com/outerbounds/metaflow-pyspark for impl.
+        # TODO: don't hardcode artifacts if at all not necessary.
         def _dbt_artifacts_iterable():
             artifacts = {
                 "run_results": executor.run_results,
